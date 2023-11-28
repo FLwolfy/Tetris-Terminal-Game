@@ -13,9 +13,9 @@ Here is the preview PNG:
 To play this game, follow these simple steps:
 
 1. To start the game, double click the `Tetris.exe` file, or enter the command:
-    ```bash
-    python main.py
-    ```
+```bash
+python main.py
+```
 2. To control the block, press keyboard `A` and `D` buttons to apply left or right move, press keyboard `Q` and `R` buttons to rotate counterclockwise or clockwise, and press keyboard `D` button to immediately drag down.
 3. Press keyboard `SPACE` button to pause the game, and press keyboard `ESC` button to quit the game.
 
