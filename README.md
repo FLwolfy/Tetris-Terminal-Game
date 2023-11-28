@@ -3,7 +3,7 @@
 Welcome to Tetris Terminal Game, an terminal game version of the classic Tetris Game developed for INFOSCI-102 FINAL PROJ.
 
 ## Preview
-Here is the preview GIF:
+Here is the preview PNG:
 <div align="center">
   <img src="Preview.png" alt="Preview">
 </div>
