@@ -37,7 +37,7 @@ Tetris Terminal Game is a FINAL PROJ for DKU INFOSCI-102. This adds on some adva
 
 7. __Different Game Modes__: This game now offers different modes, including classic and stretch modes. Classic mode is just like the original game, but with special block; Stretch mode keep the borders of the gameboard changing. Have fun!
 
-8. __Replay Feature__: Learn from your mistakes! After the game ends, players can now replay their game, allowing them to analyze their performance, identify mistakes, and improve their Tetris skills in different modes.
+8. __Replay System__: Learn from your mistakes! After the game ends, players can now replay their game, allowing them to analyze their performance, identify mistakes, and improve their Tetris skills in different modes.
 
 ## Requirements
 
