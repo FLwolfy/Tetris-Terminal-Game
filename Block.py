@@ -1,22 +1,25 @@
 class BaseBlock:
-    def __init__(self, x:int=8, y:int=-4):
-        # the base shape needs to be n*n
+    def __init__(self, x:int = 0, y:int = -3):
+        # the base shape needs to be n*n (smaller than 4*4)
         self.base_shape = \
-            [["\u25A0", "\u25A0", "\u25A0", "\u25A0"],
-             ["\u25A0", "\u25A0", "\u25A0", "\u25A0"],
-             ["\u25A0", "\u25A0", "\u25A0", "\u25A0"],
-             ["\u25A0", "\u25A0", "\u25A0", "\u25A0"]]
+            [[0, 0, 0, 0],
+             [0, 0, 0, 0],
+             [0, 0, 0, 0],
+             [0, 0, 0, 0]]
 
-        # The top left corner coords
+        # the top left corner coords (borders don't count as coordinates)
         self.x = x
         self.y = y
         
-        # Rotation index
+        # rotation index
         self.current_direction = 0
+        
+        # whether the block is special or not
+        self.is_special = False
         
     @property
     # The four directional shape
-    def shapes(self)->list[list[list[str]]]:
+    def shapes(self)->list[list[list[int]]]:
         return \
             [self.base_shape,
              [row for row in list(zip(*self.base_shape))[::-1]], # zip(*list) means the transpose of the list
@@ -60,63 +63,63 @@ class BaseBlock:
         return
     
     # return current shape of the block
-    def getShape(self)->list[list[str]]:
+    def getShape(self)->list[list[int]]:
         return self.shapes[self.current_direction]
 
 class IBlock(BaseBlock):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, x:int, y:int = -3):
+        super().__init__(x, y)
         self.base_shape = \
-            [["\u25A0", "\u25A3", "\u25A0", "\u25A0"],
-             ["\u25A0", "\u25A3", "\u25A0", "\u25A0"],
-             ["\u25A0", "\u25A3", "\u25A0", "\u25A0"],
-             ["\u25A0", "\u25A3", "\u25A0", "\u25A0"]]
+            [[0, 1, 0, 0],
+             [0, 1, 0, 0],
+             [0, 1, 0, 0],
+             [0, 1, 0, 0]]
             
 class JBlock(BaseBlock):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, x:int, y:int = -3):
+        super().__init__(x, y)
         self.base_shape = \
-            [["\u25A0", "\u25A0", "\u25A3", "\u25A0"],
-             ["\u25A0", "\u25A0", "\u25A3", "\u25A0"],
-             ["\u25A0", "\u25A3", "\u25A3", "\u25A0"],
-             ["\u25A0", "\u25A0", "\u25A0", "\u25A0"]]
+            [[0, 0, 1, 0],
+             [0, 0, 1, 0],
+             [0, 1, 1, 0],
+             [0, 0, 0, 0]]
 
 class LBlock(BaseBlock):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, x:int, y:int = -3):
+        super().__init__(x, y)
         self.base_shape = \
-            [["\u25A0", "\u25A3", "\u25A0", "\u25A0"],
-             ["\u25A0", "\u25A3", "\u25A0", "\u25A0"],
-             ["\u25A0", "\u25A3", "\u25A3", "\u25A0"],
-             ["\u25A0", "\u25A0", "\u25A0", "\u25A0"]]
+            [[0, 1, 0, 0],
+             [0, 1, 0, 0],
+             [0, 1, 1, 0],
+             [0, 0, 0, 0]]
 
 class OBlock(BaseBlock):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, x:int, y:int = -3):
+        super().__init__(x, y)
         self.base_shape = \
-            [["\u25A3", "\u25A3"],
-             ["\u25A3", "\u25A3"]]
+            [[1, 1],
+             [1, 1]]
 
 class ZBlock(BaseBlock):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, x:int, y:int = -3):
+        super().__init__(x, y)
         self.base_shape = \
-            [["\u25A0", "\u25A0", "\u25A0"],
-             ["\u25A3", "\u25A3", "\u25A0"],
-             ["\u25A0", "\u25A3", "\u25A3"]]
+            [[0, 1, 1],
+             [1, 1, 0],
+             [0, 0, 0]]
             
 class TBlock(BaseBlock):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, x:int, y:int = -3):
+        super().__init__(x, y)
         self.base_shape = \
-            [["\u25A0", "\u25A0", "\u25A0"],
-             ["\u25A0", "\u25A3", "\u25A0"],
-             ["\u25A3", "\u25A3", "\u25A3"]]
+            [[0, 1, 0],
+             [1, 1, 1],
+             [0, 0, 0]]
 
 class SBlock(BaseBlock):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, x:int, y:int = -3):
+        super().__init__(x, y)
         self.base_shape = \
-            [["\u25A0", "\u25A0", "\u25A0"],
-             ["\u25A0", "\u25A3", "\u25A3"],
-             ["\u25A3", "\u25A3", "\u25A0"]]
+            [[1, 1, 0],
+             [0, 1, 1],
+             [0, 0, 0]]
