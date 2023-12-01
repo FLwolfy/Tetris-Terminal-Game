@@ -22,7 +22,7 @@ python main.py
 
 ## About the Game
 
-Tetris Terminal Game is a FINAL PROJ for DKU INFOSCI-102. This adds on some advanced features based on the original game.
+Tetris Terminal Game is a FINAL PROJ for DKU INFOSCI-102. This adds on some [advanced features](## Advanced Features) based on the original game.
 
 ## Advanced Features
 
