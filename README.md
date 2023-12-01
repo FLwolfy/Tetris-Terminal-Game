@@ -8,6 +8,10 @@ Here is the preview PNG:
   <img src="Preview.png" alt="Preview">
 </div>
 
+## About the Game
+
+Tetris Terminal Game is a FINAL PROJ for DKU INFOSCI-102. This adds on some [Advanced Features](#advanced-features) based on the original game.
+
 ## How to Play
 
 To play this game, follow these simple steps:
@@ -19,10 +23,6 @@ python main.py
 2. To control the block, press keyboard `A` and `D` buttons to apply left or right move, press keyboard `Q` and `R` buttons to rotate counterclockwise or clockwise, and press keyboard `D` button to immediately drag down.
 3. Press keyboard `SPACE` button to pause the game, and press keyboard `ESC` button to quit the game.
 4. Do __NOT__ stretch the terminal window, or the game may bug.
-
-## About the Game
-
-Tetris Terminal Game is a FINAL PROJ for DKU INFOSCI-102. This adds on some [Advanced Features](#advanced-features) based on the original game.
 
 ## Advanced Features
 
