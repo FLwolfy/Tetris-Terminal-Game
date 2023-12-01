@@ -1,4 +1,4 @@
-from Game import Game
+from core.Game import Game
 
 def main()->None:
     # initialize and run the Tetris game
