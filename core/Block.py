@@ -79,19 +79,17 @@ class JBlock(BaseBlock):
     def __init__(self, x:int, y:int = -3):
         super().__init__(x, y)
         self.base_shape = \
-            [[0, 0, 1, 0],
-             [0, 0, 1, 0],
-             [0, 1, 1, 0],
-             [0, 0, 0, 0]]
+            [[0, 1, 0],
+             [0, 1, 0],
+             [1, 1, 0]]
 
 class LBlock(BaseBlock):
     def __init__(self, x:int, y:int = -3):
         super().__init__(x, y)
         self.base_shape = \
-            [[0, 1, 0, 0],
-             [0, 1, 0, 0],
-             [0, 1, 1, 0],
-             [0, 0, 0, 0]]
+            [[0, 1, 0],
+             [0, 1, 0],
+             [0, 1, 1]]
 
 class OBlock(BaseBlock):
     def __init__(self, x:int, y:int = -3):
