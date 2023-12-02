@@ -43,14 +43,14 @@ This game has the ability to pause the ongoing game (press `SPACE`) and also sav
 
 #### 6. Different Game Modes:
 This game now offers different modes, including __Classic__, __Stretch__, and __Drawing__ modes:
-- 6.1 Classic Mode:
-  __Classic mode__ mirrors the original game with special blocks involved.
+- 6.1 __Classic mode__:\
+   Mirrors the original game with special blocks involved.
 
-- 6.2 Stretch Mode:
-  __Stretch mode__ adds a dynamic gameplay to the gameboard by continuously changing the right border.
+- 6.2 __Stretch mode__:\
+   Adds a dynamic gameplay to the gameboard by continuously changing the right border.
 
-- 6.3 Drawing Mode:
-  __Drawing mode__ introduces creative tasks, providing players with specific "shape" challenges to complete.
+- 6.3 __Drawing mode__:\
+   Introduces creative tasks, providing players with specific "shape" challenges to complete.
   
 #### 7. Replay System: 
 After each game ends, players can now replay their game, allowing them to analyze their performance, identify mistakes, and improve their Tetris skills in different modes.
