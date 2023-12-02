@@ -26,19 +26,34 @@ python main.py
 
 ## Advanced Features
 
-1. __Different Levels of Difficulty__: This game now offers players three levels of difficulty (easy, normal, hard), providing a dynamic gaming experience. Players can choose from varying speeds and starting configurations of blocks on the board, adding an extra layer of challenge to the game.
+#### 1. Different Levels of Difficulty:
+This game now offers players three levels of difficulty (easy, normal, hard). Players can choose varying speeds of falling blocks on the board.
 
-2. __Special Blocks with Unique Abilities__: This game has special blocks that can eliminate the corresponding column when the entire full row is eliminated, which not only increases the playability but also enriches the experience.
+#### 2. Special Blocks with Unique Abilities: 
+This game has special blocks that can eliminate the corresponding column when the the special blocks are eliminated.
 
-4. __High Score System__: This game keeps track of your overall performance! The high score system now stores and displays the different highest record score of all gamemodes.
+#### 3. High Score System:
+This game keeps track of your overall performance. The high score system now stores and displays the different highest record score of all gamemodes.
 
-5. __Sound Effects and Music__: This game contains sound effects for block movements and background music to enhance the overall gameplay experience.
+#### 4. Sound Effects and Music:
+This game contains sound effects for block movements and background music to enhance the overall gameplay experience.
 
-6. __Pause and Save Functionality__: This game has the ability to pause the ongoing game and also save the current game state for next time gaming.
+#### 5. Pause and Save Functionality:
+This game has the ability to pause the ongoing game (press `SPACE`) and also save the current game state for next time gaming.
 
-7. __Different Game Modes__: This game now offers different modes, including classic and stretch modes. Classic mode is just like the original game, but with special block; Stretch mode keep the borders of the gameboard changing. Have fun!
+#### 6. Different Game Modes:
+This game now offers different modes, including __Classic__, __Stretch__, and __Drawing__ modes:
+- 6.1 Classic Mode:
+  __Classic mode__ mirrors the original game with special blocks involved.
 
-8. __Replay System__: Learn from your mistakes! After the game ends, players can now replay their game, allowing them to analyze their performance, identify mistakes, and improve their Tetris skills in different modes.
+- 6.2 Stretch Mode:
+  __Stretch mode__ adds a dynamic gameplay to the gameboard by continuously changing the right border.
+
+- 6.3 Drawing Mode:
+  __Drawing mode__ introduces creative tasks, providing players with specific "shape" challenges to complete.
+  
+#### 7. Replay System: 
+After each game ends, players can now replay their game, allowing them to analyze their performance, identify mistakes, and improve their Tetris skills in different modes.
 
 ## Requirements
 
