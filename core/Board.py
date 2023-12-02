@@ -5,6 +5,7 @@ import random
 class Board:
     def __init__(self, height: int = 15, width : int = 20, special_block_rate: float = 0):
         self.special_block_rate = special_block_rate
+        self.is_drawing = False
         
         self.__height = height
         self.__width = width
@@ -14,13 +15,116 @@ class Board:
                        [[-1] + [0] * (self.__width) + [-1] for _ in range(self.__height)] + \
                        [[-1] * (self.__width + 2) for _ in range(2)]
         self.__stretch_board_record = [[-1] + [0] * (self.__width + 1) for _ in range(self.__height + 10)]
-        self.__records = []
-        self.__current_record_index = 1 
+        self.__is_drawing_matched = False
+        self.__drawings_shapes = shapes = \
+            [
+            [[0, 0, 0, 0],
+            [0, 0, 1, 1],
+            [0, 1, 1, 0],
+            [1, 1, 1, 0]],
+            
+            [[0, 0, 0, 0],
+            [1, 1, 0, 0],
+            [0, 1, 1, 0],
+            [0, 1, 1, 1]],
+            
+            [[0, 0, 0, 0],
+            [0, 0, 1, 1],
+            [0, 1, 1, 0],
+            [1, 1, 0, 0]],
+            
+            [[0, 0, 0, 0],
+            [1, 1, 0, 0],
+            [0, 1, 1, 0],
+            [0, 0, 1, 1]],
+            
+            [[0, 0, 1, 0],
+            [0, 0, 1, 0],
+            [0, 1, 1, 0],
+            [1, 1, 1, 0]],
+            
+            [[0, 1, 0, 0],
+            [0, 1, 0, 0],
+            [0, 1, 1, 0],
+            [1, 1, 1, 0]],
+            
+            [[0, 0, 0, 0],
+            [1, 1, 1, 1],
+            [0, 1, 1, 0],
+            [0, 1, 1, 0]],
+            
+            [[0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [1, 1, 1, 1],
+            [1, 0, 0, 1]],
+            
+            [[0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [1, 0, 0, 1],
+            [1, 1, 1, 1]],
+            
+            [[0, 0, 1, 1],
+            [0, 0, 0, 1],
+            [1, 0, 0, 0],
+            [1, 1, 0, 0]],
+            
+            [[1, 1, 0, 0],
+            [1, 0, 0, 0],
+            [0, 0, 0, 1],
+            [0, 0, 1, 1]],
+            
+            [[1, 1, 1, 0],
+            [1, 0, 0, 0],
+            [1, 0, 0, 0],
+            [0, 0, 0, 0]],
+            
+            [[0, 1, 1, 1],
+            [0, 0, 0, 1],
+            [0, 0, 0, 1],
+            [0, 0, 0, 0]],
+            
+            [[0, 1, 1, 1],
+            [0, 1, 1, 0],
+            [0, 1, 1, 0],
+            [0, 0, 1, 0]],
+            
+            [[1, 1, 1, 0],
+            [0, 1, 1, 0],
+            [0, 1, 1, 0],
+            [0, 1, 0, 0]],
+            
+            [[0, 1, 1, 1],
+            [0, 1, 1, 0],
+            [0, 1, 1, 0],
+            [0, 1, 0, 0]],
+            
+            [[1, 1, 1, 0],
+            [0, 1, 1, 0],
+            [0, 1, 1, 0],
+            [0, 0, 1, 0]],
+            
+            [[0, 0, 0, 0],
+            [1, 1, 0, 0],
+            [1, 1, 1, 0],
+            [0, 1, 1, 1]],
+            
+            [[0, 0, 0, 0],
+            [0, 0, 1, 1],
+            [0, 1, 1, 1],
+            [1, 1, 1, 0]],
+            ]
+        self.__drawings_board = \
+            [[0, 0, 0, 0],
+             [0, 0, 0, 0],
+             [0, 0, 0, 0],
+             [0, 0, 0, 0]] # has to be 4*4
         self.__pause_shape = \
             [[1, 1, 1, 1],
              [1, 0, 0, 1],
              [1, 1, 1, 1],
              [1, 0, 0, 0]] # has to be 4*4
+        self.__records = []
+        self.__current_record_index = 1 
         
         # twice to generate random for both current block and next block
         self.putNewBlock()
@@ -37,28 +141,44 @@ class Board:
             return 
         elif(self.__width < target_width):
             for row in range(len(self.__board)):
-                if(row < 8 or row >= len(self.__board) - 2): # first eight and last two rows are borders
+                # first eight and last two rows are borders
+                if(row < 8 or row >= len(self.__board) - 2):
                     self.__board[row] += (target_width - self.__width) * [-1]
-                else: # middle rows
+                    
+                # middle rows
+                else:
                     self.__board[row] = self.__board[row][:-1] + (target_width - self.__width) * [0] + [-1]
-                    for col in range(self.__width + 1, min(len(self.__stretch_board_record[row]), target_width + 1)):  # insert recoreded stretched blocks
+                    
+                    # insert recoreded stretched blocks
+                    for col in range(self.__width + 1, min(len(self.__stretch_board_record[row]), target_width + 1)):
                         self.__board[row][col] = self.__stretch_board_record[row][col]                  
         else:        
             for row in range(len(self.__board)):
                 self.__stretch_board_record[row] += max(0, (self.__width + 1) - len(self.__stretch_board_record[row])) * [0]
-                for col in range(target_width + 1, self.__width + 1): # record the stretched rows
+                
+                # record the stretched rows
+                for col in range(target_width + 1, self.__width + 1): 
                     self.__stretch_board_record[row][col] = self.__board[row][col]
-                if(row < 8 or row >= len(self.__board) - 2): # first eight and last two rows remove border blocks
+                    
+                # first eight and last two rows remove border blocks
+                if(row < 8 or row >= len(self.__board) - 2): 
                     self.__board[row] = self.__board[row][:-(self.__width - target_width)]
-                else: # middle rows remove empty blocks
+                    
+                # middle rows remove empty blocks
+                else:
                     self.__board[row] = self.__board[row][:-(self.__width - target_width + 1)] + [-1]
         
-        # give value
+        # set value
         self.__width = target_width
+        
+    # generate drawings on board
+    def generateDrawings(self)->None:
+        # generate random drawings
+        index = random.randint(0,len(self.__drawings_shapes) - 1)
+        self.__drawings_board = self.__drawings_shapes[index]
  
     # move the block downward by 1 positon if the move is valid. return whether the move is successful
     def tryMoveDown(self)->bool:
-        # your code here
         if (self.isBlockValid(self.__cur_block.x, self.__cur_block.y + 1)):
             self.__cur_block.moveDown()
             return True
@@ -66,7 +186,6 @@ class Board:
     
     # move the block left by 1 positon if the move is valid. return whether the move is successful
     def tryMoveLeft(self)->bool:
-        # your code here
         if (self.isBlockValid(self.__cur_block.x - 1, self.__cur_block.y)):
             self.__cur_block.moveLeft()
             return True
@@ -74,27 +193,29 @@ class Board:
     
     # move the block right by 1 positon if the move is valid. return whether the move is successful
     def tryMoveRight(self)->bool:
-        # your code here
         if (self.isBlockValid(self.__cur_block.x + 1, self.__cur_block.y)):
             self.__cur_block.moveRight()
             return True
         return False
     
-    # rotate the block counterclockwise by 90 degree if the rotate is valid
-    def tryRotateLeft(self)->None:
+    # rotate the block counterclockwise by 90 degree if the rotate is valid. return whether the move is successful
+    def tryRotateLeft(self)->bool:
         self.__cur_block.rotateLeft()
         if(not self.isBlockValid(self.__cur_block.x, self.__cur_block.y)):
             self.__cur_block.rotateRight()
+            return False
+        return True
     
-    # rotate the block clockwise by 90 degree if the rotate is valid
-    def tryRotateRight(self)->None:
+    # rotate the block clockwise by 90 degree if the rotate is valid. return whether the move is successful
+    def tryRotateRight(self)->bool:
         self.__cur_block.rotateRight()
         if(not self.isBlockValid(self.__cur_block.x, self.__cur_block.y)):
             self.__cur_block.rotateLeft()
+            return False
+        return True
     
     # write current shape to the board permanently
     def dump(self)->None:
-        # your code here
         for i in range(len(self.__cur_block.getShape())):
             for j in range(len(self.__cur_block.getShape()[0])):
                 if (self.__cur_block.y + i >= 0 and self.__cur_block.y + i < self.__height and self.__cur_block.x + j < self.__width and self.__cur_block.x + j >= 0): # within the board
@@ -106,9 +227,9 @@ class Board:
 
     # put a new block on the top of the board
     def putNewBlock(self)->None:
-        # your code here
         self.__cur_block = self.__next_block
         self.__cur_block.x = (self.__width // 2 + 1) - len(self.__cur_block.getShape())
+        self.__cur_block.y = -len(self.__cur_block.getShape())
         
         # generate random next block
         rng = random.randint(0, 6)
@@ -129,21 +250,165 @@ class Board:
             
         # randomly give special blocks
         self.__next_block.is_special = random.random() <= self.special_block_rate
-        
+    
         # record replay step                 
         self.recordStep()
     
     # check if current block is valid
     def isBlockValid(self, x:int, y:int)->bool:
-        # your code here
         for i in range(len(self.__cur_block.getShape())):
             for j in range(len(self.__cur_block.getShape()[0])):
                 if(self.__cur_block.getShape()[i][j] == 1):
-                    if (y + i >= self.__height or x + j >= self.__width or x + j < 0): # out of three bounds: left, right, bottom
+                    # out of three bounds: left, right, bottom
+                    if (y + i >= self.__height or x + j >= self.__width or x + j < 0): 
                         return False
-                    elif (y + i >= 0 and self.__board[y + 8 + i][x + 1 + j] > 0): # overlaps with other block
+                    
+                    # overlaps with other block
+                    elif (y + i >= 0 and self.__board[y + 8 + i][x + 1 + j] > 0): 
                         return False                         
         return True
+                 
+    # color the detected units, return the number of blocks colored
+    def colorDetected(self)->int:
+        num_of_blocks_detected = 0
+        full_rows, special_cols = self.detectFullRowsNSpecialCols()
+        
+        # color the units that match the drawing
+        if(self.is_drawing):
+            match_pos = self.detectDrawings()
+            if(match_pos != None):
+                self.__is_drawing_matched = True
+                # color matched drawing block units
+                for i in range(4):
+                    for j in range(4):
+                        if(self.__drawings_board[i][j] == 1):
+                            if(self.__board[match_pos[0] + 8 + i][match_pos[1] + 1 + j] == 3):
+                                special_cols.add(match_pos[1] + j)
+                            self.__board[match_pos[0] + 8 + i][match_pos[1] + 1 + j] = -4 
+                            num_of_blocks_detected += 1
+                
+                # color explode block units
+                tmp = [row[1:-1] for row in self.__board[8:-2]] # deep copy
+                for y in range(match_pos[0] - 3, match_pos[0] + 7):
+                    for x in range(match_pos[1] - 3, match_pos[1] + 7):
+                        if (y < 0 or y >= self.__height or x >= self.__width or x < 0): # out of boundaries
+                            continue
+                        if (not (y < match_pos[0] or y >= match_pos[0] + 4 or x >= match_pos[1] + 4 or x < match_pos[1])): # inside drawings
+                            continue
+                        for i, j in ((match_pos[0] + 1, match_pos[1] + 1), 
+                                    (match_pos[0] + 2, match_pos[1] + 1), 
+                                    (match_pos[0] + 1, match_pos[1] + 2), 
+                                    (match_pos[0] + 2, match_pos[1] + 2)):
+                            if(abs(y - i) + abs(x - j) <= 5):
+                                if(tmp[y][x] == 3):
+                                    special_cols.add(x)
+                                self.__board[y + 8][x + 1] = 5 # explode color
+                                if(tmp[y][x] > 0):
+                                    num_of_blocks_detected += 1
+                                                     
+        # color full rows and special cols detected
+        for row in range(self.__height):  
+            # color full row
+            if (row in full_rows):
+                num_of_blocks_detected += self.__width
+                self.__board[row + 8] = [-1] + [4] * (self.__width) + [-1]
+                
+            # color full special columns
+            for col in special_cols:
+                if(self.__board[row + 8][col + 1] != -4 and self.__board[row + 8][col + 1] != 5): # not drawing blocks and explode blocks
+                    self.__board[row + 8][col + 1] = 4
+                    num_of_blocks_detected += 1
+        num_of_blocks_detected -= len(special_cols) * len(full_rows)
+        
+        # record replay steps
+        if (num_of_blocks_detected > 0):
+            self.recordStep()
+        
+        return num_of_blocks_detected
+    
+    # remove the detected units that have been colored
+    def removeDetected(self)->None:
+        has_removed = False
+        
+        # remove full rows
+        for row in range(self.__height - 1, -1, -1):
+            if(self.__board[row + 8] == [-1] + [4] * self.__width + [-1]):
+                self.__board.remove([-1] + [4] * self.__width + [-1])
+                self.__board.insert(8, [-1] + [0] * self.__width + [-1])  
+        
+        # remove special col and detected drawings      
+        for row in range(self.__height):
+            for col in range(self.__width):
+                if(self.__board[row + 8][col + 1] == 4 or self.__board[row + 8][col + 1] == -4 or self.__board[row + 8][col + 1] == 5): # detected, drawing, and explode blocks
+                    self.__board[row + 8][col + 1] = 0 # empty block unit
+                    has_removed = True
+        
+        # generate new drawings
+        if(self.__is_drawing_matched):
+            self.generateDrawings()
+            self.__is_drawing_matched = False
+        
+        # record steps if remove
+        if (has_removed):
+            self.recordStep()
+    
+    # record the current step for replay
+    def recordStep(self)->None:
+        self.__records.append(self.getRawBoard())
+    
+    # detect if there are full rows and special cols, return the tuple of full rows and special cols  
+    def detectFullRowsNSpecialCols(self)->tuple[set,set]:
+        full_rows = set()
+        special_cols = set()
+        current_cols = set()
+        
+        # detect full rows and special cols
+        for row in range(self.__height):
+            isFullrow = True
+            current_cols.clear()
+            for col in range(self.__width):       
+                # detect full rows
+                if(self.__board[row + 8][col + 1] == 0):
+                    isFullrow = False
+                    break
+                
+                # detect special blocks
+                if(self.__board[row + 8][col + 1] == 3):
+                    current_cols.add(col)
+                    
+            if(isFullrow):
+                full_rows.add(row)
+                special_cols.update(current_cols)
+        
+        # return the tuple of full rows and special cols
+        return (full_rows, special_cols)
+            
+    # detect if the drawing has been matched, return the lefttop position if matched, elss return None
+    def detectDrawings(self)->tuple[int,int]:
+        for row in range(self.__height - 3):
+            for col in range(self.__width - 3):
+                is_matched = True
+                for i in range(4):
+                    for j in range(4):
+                        if(self.__drawings_board[i][j] == 1 and self.__board[row + 8 + i][col + 1 + j] == 0):
+                            is_matched = False
+                        elif(self.__drawings_board[i][j] == 0 and self.__board[row + 8 + i][col + 1 + j] != 0):
+                            is_matched = False
+                if(is_matched):
+                    return (row, col)
+        return None
+    
+    # detect loss, if loss return True, else False
+    def detectLoss(self)->bool:
+        top_row = self.__board[8]
+        is_loss = False
+        for i in range(len(top_row)):
+            if(top_row[i] > 0):
+                top_row[i] = -3 # '-3' notation for loss block
+                is_loss = True
+        if(is_loss):
+            self.recordStep()
+        return is_loss
     
     # the distance of the current block to the wall, 0:UP, 1:LEFT, 2:RIGHT, 3:DOWN
     def distanceToWall(self, direction:int)->int:
@@ -174,71 +439,8 @@ class Board:
             return self.__height - self.__cur_block.y
         
         return None
-                 
-    # detect, color, and remove full rows, return a tuple with the number of blocks need to remove and the special cols set
-    def ColorNRemoveFullRows(self, colToRemove: set = None)->tuple[int, set[int]]:
-        # detec, color, or remove full rows and special cols
-        tmp = [row[:] for row in self.__board]
-        specialCol = set()
-        numOfRemoveRows = 0
-        numOfFullRows = 0
-        numOfBlocksDetected = 0
-        for row in range(8, 8 + self.__height):
-            # remove colored full rows
-            if (numOfFullRows == 0):
-                if (tmp[row] == [-1] + [4] * (self.__width) + [-1]):
-                    numOfRemoveRows += 1
-                    self.__board.remove([-1] + [4] * (self.__width) + [-1]) # Remove full rows
-                    self.__board.insert(8, [-1] + [0] * (self.__width) + [-1])
-                elif (colToRemove != None):
-                    for col in colToRemove:
-                        self.__board[row][col] = 0 # Remove special cols
-            
-            # color detected full rows and special column 
-            if (numOfRemoveRows == 0):
-                isFullrow = True
-                for col in range(1, len(tmp[row]) - 1): # detect full rows
-                    if(tmp[row][col] == 0):
-                        isFullrow = False
-                        break
-                    if(tmp[row][col] == 3): # detect special blocks
-                        specialCol.add(col) 
-                if (isFullrow):
-                    numOfBlocksDetected += self.__width
-                    numOfFullRows += 1
-                    self.__board[row] = [-1] + [4] * (self.__width) + [-1] # full rows color
-        
-        # count special cols blocks            
-        if(numOfFullRows > 0):
-            for col in specialCol:
-                for row in range(8, 8 + self.__height):
-                    self.__board[row][col] = 4 # full special columns color 
-                numOfBlocksDetected += 1
-            numOfBlocksDetected -= len(specialCol) * numOfFullRows
-        
-        # record steps
-        if (numOfRemoveRows > 0 or numOfBlocksDetected > 0):
-            self.recordStep()
-        
-        return (numOfBlocksDetected, specialCol)
     
-    # detect loss, if loss return True, else False
-    def detectLoss(self)->bool:
-        topRow = self.__board[8]
-        isLoss = False
-        for i in range(len(topRow)):
-            if(topRow[i] > 0):
-                topRow[i] = -3 # '-3' notation for loss block
-                isLoss = True
-        if(isLoss):
-            self.recordStep()
-        return isLoss
-
-    # record the current step
-    def recordStep(self)->None:
-        self.__records.append(self.getRawBoard())
-    
-    # get the int-2Dlist board for raw output
+    # get the 2Dlist[int] board for raw output
     def getRawBoard(self, is_paused: bool = False)->list[list[int]]:
         # deep copy of current board
         tmp = [row[:] for row in self.__board]
@@ -255,16 +457,27 @@ class Board:
         
         # show 'P' pattern if paused
         for i in range(4):
-            for j in range(4):
-                row_index = i + 2
-                col_index = self.__width // 2 - 1 + j
-                if(is_paused and self.__pause_shape[i][j] == 1): # 'P' pattern
-                    tmp[row_index][col_index] = -2 # '-2' notation for pause blocks
-                else:
-                    tmp[row_index][col_index] = 0 # empty block    
+                for j in range(4):
+                    row_index = i + 2
+                    col_index = self.__width // 2 - 1 + j
+                    if(is_paused and self.__pause_shape[i][j] == 1): # 'P' pattern
+                        tmp[row_index][col_index] = -2 # '-2' notation for pause blocks
+                    else:
+                        tmp[row_index][col_index] = 0 # empty block 
+                        
+        # show the drawings block
+        if(self.is_drawing and not is_paused):
+            for i in range(4):
+                for j in range(4):
+                    row_index = i + 2
+                    col_index = self.__width // 2 - 1 + j
+                    if(self.__drawings_board[i][j] == 1):
+                        tmp[row_index][col_index] = -4 # '-4' notation for drawing blocks
+                    else:
+                        tmp[row_index][col_index] = 0 # empty block              
         
         # show previewed next block if not paused
-        if(not is_paused):
+        elif(not is_paused):
             start_index_row = int((4 - len(self.__next_block.getShape())) / 2 + 0.5) + 2
             start_index_col = (self.__width // 2 - 3) + start_index_row
             for i in range(len(self.__next_block.getShape())):
@@ -288,7 +501,9 @@ class Board:
         tmp_string = ''
         for r in range(len(tmp)):
             for c in range(len(tmp[0])):
-                if(tmp[r][c] == -3): # pause block
+                if(tmp[r][c] == -4): # drawing block
+                    tmp_string += Appearance.DRAWING_COLOR + Appearance.DRAWING_BLOCK
+                elif(tmp[r][c] == -3): # loss block
                     tmp_string += Appearance.LOSS_COLOR + Appearance.GAME_BLOCK
                 elif(tmp[r][c] == -2): # pause block
                     tmp_string += Appearance.PAUSE_COLOR + Appearance.BORDER_BLOCK
@@ -302,8 +517,10 @@ class Board:
                     tmp_string += Appearance.FALL_COLOR + Appearance.GAME_BLOCK
                 elif(tmp[r][c] == 3): # special block
                     tmp_string += Appearance.SPECIAL_COLOR() + Appearance.GAME_BLOCK
-                elif(tmp[r][c] == 4): # full row block
-                    tmp_string += Appearance.FULLROW_COLOR + Appearance.GAME_BLOCK
+                elif(tmp[r][c] == 4): # detected block
+                    tmp_string += Appearance.DETECTED_COLOR + Appearance.GAME_BLOCK
+                elif(tmp[r][c] == 5): # explode block
+                    tmp_string += Appearance.EXPLODE_COLOR + Appearance.GAME_BLOCK
             if(r < len(tmp) - 1):
                 tmp_string += "\n"
                 
@@ -326,20 +543,22 @@ class Board:
             "width": self.__width,
             "boardlst" : self.__board,
             "stretch_board": self.__stretch_board_record,
+            "drawing_board": self.__drawings_board,
             "records" : self.__records,
-            "current_block_type" : "#" + str(type(self.__cur_block)).split('.')[1][0] if(self.__cur_block.is_special) else str(type(self.__cur_block)).split('.')[1][0],
-            "next_block_type" : "#" + str(type(self.__next_block)).split('.')[1][0] if(self.__next_block.is_special) else str(type(self.__next_block)).split('.')[1][0],
+            "current_block_type" : "#" + str(type(self.__cur_block)).split('Block.')[1][0] if(self.__cur_block.is_special) else str(type(self.__cur_block)).split('Block.')[1][0],
+            "next_block_type" : "#" + str(type(self.__next_block)).split('Block.')[1][0] if(self.__next_block.is_special) else str(type(self.__next_block)).split('Block.')[1][0],
         } # '#' notation for special block
     
     # load the data from the given parameters
-    def loadData(self, height: int, width: int, board: list[list[int]], stretch_board:list[list[int]], records: list[list[list[int]]], cur_block_type: str, next_block_type: str)->None:
+    def loadData(self, height: int, width: int, board: list[list[int]], stretch_board:list[list[int]], drawing_board:list[list[int]], records: list[list[list[int]]], cur_block_type: str, next_block_type: str)->None:
         # read height and width
         self.__height = height
         self.__width = width
         
-        # deep copy board, stretch board, and replay records
+        # deep copy board, stretch board, drawing board, and replay records
         self.__board = [row[:] for row in board]
         self.__stretch_board_record = [row[:] for row in stretch_board]
+        self.__drawings_board = [row[:] for row in drawing_board]
         self.__records = records[:]
         
         # read current block type

@@ -10,7 +10,8 @@ class Game:
     is_muted = False
     score_record_high = {
         GameMode.CLASSIC: 0,
-        GameMode.STRETCH: 0
+        GameMode.STRETCH: 0,
+        GameMode.DRAWING: 0
     }
     
     def __init__(self):
@@ -26,30 +27,9 @@ class Game:
         self.__tmp_stretch_time = 0
         self.__tmp_start_time = 0
         self.__resume_state = GameState.GAME
-        self.__continuous_detected_full_rows_times = 0
+        self.__continuous_elimination_times = 0
         self.__music = None
-        
-        # read save file
-        try: 
-            with open('save.json', 'r') as file:
-                self.__save = json.load(file)
-            Game.score_record_high = self.__save["record_high"]
-            if(self.__save["saved_game_data"] != {}):
-                self.game_speed = self.__save["saved_game_data"]["speed"]
-                self.game_mode = self.__save["saved_game_data"]["mode"]
-                self.score = self.__save["saved_game_data"]["score"]
-                self.board.loadData(self.__save["saved_game_data"]["height"], 
-                                    self.__save["saved_game_data"]["width"],
-                                    self.__save["saved_game_data"]["boardlst"],
-                                    self.__save["saved_game_data"]["stretch_board"],
-                                    self.__save["saved_game_data"]["records"], 
-                                    self.__save["saved_game_data"]["current_block_type"], 
-                                    self.__save["saved_game_data"]["next_block_type"])
-                self.__save["saved_game_data"] = {} # clear the saved data after read
-        except:
-            with open('save.json', 'w') as file:
-                init_data = {"record_high": {"classic": 0, "stretch": 0}, "saved_game_data": {}}
-                json.dump(init_data, file)
+        self.__save = {}
 
     # activate the game
     def run(self)->None:
@@ -70,17 +50,17 @@ class Game:
             # main start
             self.start()
             
-            # write in save file
+            # write in save file   
             self.__save["record_high"] = Game.score_record_high
             with open('save.json', 'w') as file:
                 json.dump(self.__save, file)
             
             # ask play again
             while(True):
-                doPlayAgain = input("Play again? (yes / no)\nYour Input: --> ")
-                if (doPlayAgain == "yes"):
+                do_play_again = input("Play again? (yes / no)\nYour Input: --> ")
+                if (do_play_again == "yes"):
                     break
-                elif (doPlayAgain == "no"):
+                elif (do_play_again == "no"):
                     # Press ANY key to exit
                     print('\033[F\033[KBye! Press ANY key to exit...')
                     while(not self.kb.kbhit()):
@@ -94,6 +74,9 @@ class Game:
         # initialize
         self.__init__()
         self.__tmp_start_time = time.time()
+        
+        # read save data
+        self.readSave()
         
         # choose mode and difficulty if no save data
         if(self.game_speed == 0):
@@ -136,6 +119,8 @@ class Game:
                         self.__music = self.playAudio(Audio.CLASSIC)
                     elif(self.game_mode == GameMode.STRETCH):
                         self.__music = self.playAudio(Audio.STRETCH)
+                    elif(self.game_mode == GameMode.DRAWING):
+                        self.__music = self.playAudio(Audio.DRAWING)
                 self.update(kinput)
             
             # replay system
@@ -151,15 +136,20 @@ class Game:
     def chooseModeNDifficulty(self)->None:
         # choose game mode
         while(True):
-            difficulty = input("Enter Gamemode: classic, stretch\nYour Input: --> ")
-            if (difficulty == "classic"):
+            mode = input("Enter Gamemode: classic, stretch, drawing\nYour Input: --> ")
+            if (mode == "classic"):
                 self.game_mode = GameMode.CLASSIC
                 break
-            elif (difficulty == "stretch"):
+            elif (mode == "stretch"):
                 self.game_mode = GameMode.STRETCH
                 break
+            elif (mode == "drawing"):
+                self.game_mode = GameMode.DRAWING
+                self.board.is_drawing = True
+                self.board.generateDrawings()
+                break
             print("\033[F\033[K" * 2 + "Please enter correct gamemode!", end=' ')
-        print("\033[F\033[K" * 2, end='')
+        print("\033[F\033[K" * 2, end='')         
         
         # choose game difficulty
         while(True):
@@ -174,7 +164,7 @@ class Game:
                 self.game_speed = Difficulty.HARD
                 break
             print("\033[F\033[K" * 2 + "Please enter correct difficulty!", end=' ')
-        self.board.special_block_rate = self.game_speed / 10 + 0.03
+        self.board.special_block_rate = self.game_speed / 12 + 0.03
         print("\033[F\033[K" * 2, end='')
     
     # stretch the board  
@@ -195,7 +185,7 @@ class Game:
             self.board.stretch(self.board.width - 1)
             
             # full row event
-            self.fullRowsEvent()
+            self.eliminateEvent()
             
             # reset timer
             self.__tmp_stretch_time = time.time()
@@ -206,7 +196,7 @@ class Game:
             self.board.stretch(self.board.width + 1)
             
             # full row event
-            self.fullRowsEvent()
+            self.eliminateEvent()
             
             # reset timer
             self.__tmp_stretch_time = time.time()
@@ -223,7 +213,7 @@ class Game:
             
     # save current game state
     def save(self)->None:
-        # ask save of not
+        # ask save state or not
         while(True):
             doSave = input("Save current state? (yes / no)\nYour Input: --> ")
             if (doSave == "yes"):
@@ -239,25 +229,51 @@ class Game:
         cur_game_data["speed"] = self.game_speed
         cur_game_data["mode"] = self.game_mode
         self.__save["saved_game_data"] = cur_game_data
+        self.__save["record_high"] = Game.score_record_high
  
-        print("\033[F\033[K" * 2, end='Game is saved! ')        
+        print("\033[F\033[K" * 2, end='Game is saved! ')
+    
+    # read save file, and clear the data
+    def readSave(self)->None:
+        try: 
+            with open('save.json', 'r') as file:
+                self.__save = json.load(file)
+            Game.score_record_high = self.__save["record_high"]
+            if(self.__save["saved_game_data"] != {}):
+                self.game_speed = self.__save["saved_game_data"]["speed"]
+                self.game_mode = self.__save["saved_game_data"]["mode"]
+                self.score = self.__save["saved_game_data"]["score"]
+                self.board.loadData(self.__save["saved_game_data"]["height"], 
+                                    self.__save["saved_game_data"]["width"],
+                                    self.__save["saved_game_data"]["boardlst"],
+                                    self.__save["saved_game_data"]["stretch_board"],
+                                    self.__save["saved_game_data"]["drawing_board"],
+                                    self.__save["saved_game_data"]["records"], 
+                                    self.__save["saved_game_data"]["current_block_type"], 
+                                    self.__save["saved_game_data"]["next_block_type"])
+                
+                # clear the saved data after read
+                self.__save["saved_game_data"] = {} 
+                json.dump(self.__save, file)
+        except:
+            with open('save.json', 'w') as file:
+                init_data = {"record_high": {"classic": 0, "stretch": 0, "drawing": 0}, "saved_game_data": {}}
+                json.dump(init_data, file)      
                
     # update all the game mechanics
-    def update(self, kinput:str)->None:     
+    def update(self, k_input:str)->None:     
         # handle user's inputs
-        if (kinput == 'q'):
-            self.board.tryRotateLeft()         
-            if (not Game.is_muted): # play rotate audio if not muted
-                self.playAudio(Audio.ROTATE)
-        if (kinput == 'e'):
-            self.board.tryRotateRight()      
-            if (not Game.is_muted): # play rotate audio if not muted
-                self.playAudio(Audio.ROTATE)
-        if (kinput == 'a'):
+        if (k_input == 'q'):
+            if (self.board.tryRotateLeft() and (not Game.is_muted)):
+                self.playAudio(Audio.ROTATE) # play rotate audio if not muted
+        if (k_input == 'e'):
+            if (self.board.tryRotateRight() and (not Game.is_muted)): 
+                self.playAudio(Audio.ROTATE) # play rotate audio if not muted
+        if (k_input == 'a'):
             self.board.tryMoveLeft()
-        if (kinput == 'd'):
+        if (k_input == 'd'):
             self.board.tryMoveRight()
-        if (kinput == 's'): # if 'S' is pressed, drop the block immediately
+        if (k_input == 's'): # if 'S' is pressed, drop the block immediately
             while(self.board.tryMoveDown()):
                 # Falling animation
                 self.display()
@@ -291,27 +307,32 @@ class Game:
         Game.score_record_high[self.game_mode] = max(Game.score_record_high[self.game_mode], self.score)
         
         # events
-        self.fullRowsEvent()
+        self.eliminateEvent()
         self.lossEvent()   
         
-    # things that will be performed after detecting full rows
-    def fullRowsEvent(self)->None:
-        detected = self.board.ColorNRemoveFullRows() # detect the block to remove, and color the full rows and special cols
-        if(detected[0] > 0):
-            self.__continuous_detected_full_rows_times += 1
+    # things that will be performed during elimination of blocks
+    def eliminateEvent(self)->None:
+        detected = self.board.colorDetected() # detect the block units to remove, and color the block units that need to be removed
+        
+        if(detected == 0):
+            self.__continuous_elimination_times = 0
+        while(detected > 0):
+            self.__continuous_elimination_times += 1
             
-            # 0.5s to show the full rows
+            # 0.8s to show the elimination results
             self.display()
-            time.sleep(0.5)
+            time.sleep(0.8)
             
-            # calculate scores for full rows
-            self.score += self.__continuous_detected_full_rows_times * (detected[0] // 20) * detected[0]
+            # calculate scores for elimination
+            self.score += self.__continuous_elimination_times * (detected // self.board.width) * detected
             Game.score_record_high[self.game_mode] = max(Game.score_record_high[self.game_mode], self.score)
             
-            # Remove full rows
-            self.board.ColorNRemoveFullRows(detected[1])
-        else:
-            self.__continuous_detected_full_rows_times = 0
+            # execute elimination
+            self.board.removeDetected()
+
+            # update detect
+            detected = self.board.colorDetected()
+            
         
     # things that will be performed after loss
     def lossEvent(self)->None:
@@ -322,17 +343,17 @@ class Game:
             # play gameover sound if not muted
             if (not Game.is_muted):
                 self.__music.stop()
-                self.__music = self.playAudio(Audio.GAMEOVER, wait=True)
+                self.__music = self.playAudio(Audio.GAMEOVER, is_wait=True)
 
             # replay text
             print("Game Finish!", end=' ')
             while(True):
-                doSeeReplay = input("See replay? (yes / no)\nYour Input: --> ")
-                if (doSeeReplay == "yes"):
+                do_see_replay = input("See replay? (yes / no)\nYour Input: --> ")
+                if (do_see_replay == "yes"):
                     self.game_state = GameState.REPLAY
                     self.__resume_state = GameState.REPLAY
                     break
-                elif (doSeeReplay == "no"):
+                elif (do_see_replay == "no"):
                     self.game_state = GameState.NONE
                     self.__resume_state = GameState.NONE
                     break
@@ -341,35 +362,34 @@ class Game:
             print("\033[F\033[K" * 2, end='') 
     
     # review previous round
-    def seeReplay(self, kinput:str)->None:       
+    def seeReplay(self, k_input:str)->None:       
         # Show records
         if(time.time() - self.__tmp_start_time >= self.replay_speed):
             self.__tmp_start_time = time.time()
             self.board.getRecord(1)
         
         # get input
-        if (kinput == 'a'): # go backward
+        if (k_input == 'a'): # go backward
             self.board.getRecord(-1)
             self.__tmp_start_time = time.time() + self.replay_speed
-        elif (kinput == 'd'): # go forward
+        elif (k_input == 'd'): # go forward
             self.board.getRecord(1)
             self.__tmp_start_time = time.time() + self.replay_speed
                  
     # print board on the command line
     def display(self)->None:
-        # your code here
         if(self.game_state == GameState.GAME):
-            print("\033[F\033[K" * 28 + f"You are gaming!\nYour Scores: {self.score}, Your Record: {Game.score_record_high[self.game_mode]}\n" + self.board.getBoard() + f"\nControl: Press 'SPACE' to pause the game, 'ESC' to quit the game...", flush=True) # "\033[F\033[K" * 19 means clear the previous linse of output to avoid jittering
+            print("\033[F\033[K" * 28 + f"You are gaming in mode {self.game_mode}!\nYour Scores: {self.score}, Your Record: {Game.score_record_high[self.game_mode]}\n" + self.board.getBoard() + f"\nControl: Press 'SPACE' to pause the game, 'ESC' to quit the game...", flush=True) # "\033[F\033[K" * 19 means clear the previous linse of output to avoid jittering
         if(self.game_state == GameState.REPLAY):
             print("\033[F\033[K" * 28 + f"You are watching replay!\nYour Scores: {self.score}, Your Record: {Game.score_record_high[self.game_mode]}\n" + self.board.getRecord() + "\nControl: Press 'D' to go forward, 'A' to go backward, 'SPACE' to pause the game, 'ESC' to quit the replay...", flush=True)
         if(self.game_state == GameState.PAUSE):
             if(self.__resume_state == GameState.GAME):
-                print("\033[F\033[K" * 28 + f"You are pausing!\nYour Scores: {self.score}, Your Record: {Game.score_record_high[self.game_mode]}\n" + self.board.getBoard(is_paused=True) + "\nControl: Press 'SPACE' to resume the game, 'ESC' to quit the game...", flush=True)
+                print("\033[F\033[K" * 28 + f"You are pausing in mode {self.game_mode}!\nYour Scores: {self.score}, Your Record: {Game.score_record_high[self.game_mode]}\n" + self.board.getBoard(is_paused=True) + "\nControl: Press 'SPACE' to resume the game, 'ESC' to quit the game...", flush=True)
             if(self.__resume_state == GameState.REPLAY):
-                print("\033[F\033[K" * 28 + f"You are pausing!\nYour Scores: {self.score}, Your Record: {Game.score_record_high[self.game_mode]}\n" + self.board.getRecord() + "\nControl: Press 'SPACE' to resume the game, 'ESC' to quit the game...", flush=True)
+                print("\033[F\033[K" * 28 + f"You are pausing in replay!\nYour Scores: {self.score}, Your Record: {Game.score_record_high[self.game_mode]}\n" + self.board.getRecord() + "\nControl: Press 'SPACE' to resume the game, 'ESC' to quit the game...", flush=True)
                 
     # play the audio, return the play object
-    def playAudio(self, wave_obj:str, wait: bool = False)->simpleaudio.PlayObject:    
+    def playAudio(self, wave_obj:str, is_wait: bool = False)->simpleaudio.PlayObject:    
         # read and play the audio from file path
         try:
             play_obj = wave_obj.play()
@@ -377,7 +397,7 @@ class Game:
             pass
          
         # if wait, block until the audio finish
-        if(wait):
+        if(is_wait):
             play_obj.wait_done()
             return None
         

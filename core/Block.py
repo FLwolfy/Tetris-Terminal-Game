@@ -1,5 +1,5 @@
 class BaseBlock:
-    def __init__(self, x:int = 0, y:int = -3):
+    def __init__(self, x:int = 0, y:int = -4):
         # the base shape needs to be n*n (smaller than 4*4)
         self.base_shape = \
             [[0, 0, 0, 0],
@@ -123,3 +123,5 @@ class SBlock(BaseBlock):
             [[1, 1, 0],
              [0, 1, 1],
              [0, 0, 0]]
+            
+

@@ -152,4 +152,7 @@ cython_debug/
 ##################################################################################
 
 # generated
-save.json/
+save.json
+
+# local test
+start.bat
