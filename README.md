@@ -57,7 +57,13 @@ After each game ends, players can now replay their game, allowing them to analyz
 
 ## Requirements
 
+#### 1. Environment:
 Make sure you have Python installed (>=3.11.6 for .exe) on your system to run the game successfully.
+
+#### 2. Package:
+Make sure the following dependent libraries are installed:
+- `KBHit`
+- `simpleaudio`
 
 ## Notes
 
