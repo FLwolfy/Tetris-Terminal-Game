@@ -331,7 +331,7 @@ class Board:
         has_removed = False
         
         # remove full rows
-        for row in range(self.__height - 1, -1, -1):
+        for row in range(self.__height):
             if(self.__board[row + 8] == [-1] + [4] * self.__width + [-1]):
                 self.__board.remove([-1] + [4] * self.__width + [-1])
                 self.__board.insert(8, [-1] + [0] * self.__width + [-1])  
