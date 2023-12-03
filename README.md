@@ -27,10 +27,10 @@ python main.py
 ## Advanced Features
 
 #### 1. Different Levels of Difficulty:
-This game now offers players three levels of difficulty (easy, normal, hard). Players can choose varying speeds of falling blocks on the board.
+This game now offers players three levels of difficulty (easy, normal, hard). Players can choose various speeds of falling blocks on the board.
 
 #### 2. Special Blocks with Unique Abilities: 
-This game has special blocks that can eliminate the corresponding column when the the special blocks are eliminated.
+This game has special blocks that can eliminate the corresponding column when the special blocks are eliminated.
 
 #### 3. High Score System:
 This game keeps track of your overall performance. The high score system now stores and displays the different highest record score of all gamemodes.
@@ -57,7 +57,7 @@ After each game ends, players can now replay their game, allowing them to analyz
 
 ## Requirements
 
-Make sure you have Python installed (>=3.10.6) on your system to run the game successfully.
+Make sure you have Python installed (>=3.11.6 for .exe) on your system to run the game successfully.
 
 ## Notes
 
