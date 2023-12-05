@@ -59,6 +59,7 @@ After each game ends, players can now replay their game, allowing them to analyz
 
 #### 1. Environment:
 Make sure you have Python installed (>=3.11.6 for .exe) on your system to run the game successfully.
+Make sure your terminal should support __ASCII escape sequences__.
 
 #### 2. Package:
 Make sure the following dependent libraries are installed:
