@@ -31,8 +31,10 @@ class Game:
         self.__music = None
         self.__save = {}
 
-    # activate the game
     def run(self)->None:
+        '''
+        activate the game
+        '''
         # ask muted or not
         while(True):
             ismuted = input("Mute audio? (yes / no)\nYour Input: --> ")
@@ -69,8 +71,10 @@ class Game:
                 print("\033[F\033[K" * 2 + "Please enter correct answer!", end=' ')
             print("\033[F\033[K" * 30, end='')
 
-    # start the game
     def start(self)->None:
+        '''
+        start the game
+        '''
         # initialize
         self.__init__()
         self.__tmp_start_time = time.time()
@@ -132,8 +136,10 @@ class Game:
             # input interval
             time.sleep(0.05)
     
-    # based on the mode and difficulty chosen, change game mode, the speed of the game, and special block rate
     def chooseModeNDifficulty(self)->None:
+        '''
+        based on the mode and difficulty chosen, change game mode, the speed of the game, and special block rate
+        '''
         # choose game mode
         while(True):
             mode = input("Enter Gamemode: classic, stretch, drawing\nYour Input: --> ")
@@ -166,9 +172,11 @@ class Game:
             print("\033[F\033[K" * 2 + "Please enter correct difficulty!", end=' ')
         self.board.special_block_rate = self.game_speed / 12 + 0.03
         print("\033[F\033[K" * 2, end='')
-    
-    # stretch the board  
+     
     def stretch(self)->None:
+        '''
+        stretch the board
+        '''
         # cool down time
         if(self.board.width == self.__stretch_width):     
             if(time.time() > self.__tmp_stretch_time + self.game_speed * 5):
@@ -201,8 +209,10 @@ class Game:
             # reset timer
             self.__tmp_stretch_time = time.time()
             
-    # switch between pause and resume
     def switchPause(self)->None:
+        '''
+        switch between pause and resume
+        '''
         if(self.game_state != GameState.PAUSE):
             self.__resume_state = self.game_state
             self.game_state = GameState.PAUSE
@@ -211,8 +221,10 @@ class Game:
             self.__tmp_start_time = time.time()
             self.__tmp_stretch_time = time.time()
             
-    # save current game state
     def save(self)->None:
+        '''
+        save current game state
+        '''
         # ask save state or not
         while(True):
             doSave = input("Save current state? (yes / no)\nYour Input: --> ")
@@ -233,8 +245,10 @@ class Game:
  
         print("\033[F\033[K" * 2, end='Game is saved! ')
     
-    # read save file, and clear the data
     def readSave(self)->None:
+        '''
+        read save file, and clear the data
+        '''
         try: 
             with open('save.json', 'r') as file:
                 self.__save = json.load(file)
@@ -260,8 +274,10 @@ class Game:
                 init_data = {"record_high": {"classic": 0, "stretch": 0, "drawing": 0}, "saved_game_data": {}}
                 json.dump(init_data, file)      
                
-    # update all the game mechanics
-    def update(self, k_input:str)->None:     
+    def update(self, k_input:str)->None:
+        '''
+        update all the game mechanics
+        '''
         # handle user's inputs
         if (k_input == 'q'):
             if (self.board.tryRotateLeft() and (not Game.is_muted)):
@@ -293,8 +309,10 @@ class Game:
             # reset start time
             self.__tmp_start_time = time.time()
     
-    # end the current block round
     def endBlockRound(self)->None:
+        '''
+        end the current block round
+        '''
         self.board.dump()
         self.board.putNewBlock()
         
@@ -310,8 +328,10 @@ class Game:
         self.eliminateEvent()
         self.lossEvent()   
         
-    # things that will be performed during elimination of blocks
     def eliminateEvent(self)->None:
+        '''
+        things that will be performed during elimination of blocks
+        '''
         detected = self.board.colorDetected() # detect the block units to remove, and color the block units that need to be removed
         
         if(detected == 0):
@@ -334,8 +354,10 @@ class Game:
             detected = self.board.colorDetected()
             
         
-    # things that will be performed after loss
     def lossEvent(self)->None:
+        '''
+        things that will be performed after loss
+        '''
         if(self.board.detectLoss()):
             # display game final state
             self.display()
@@ -361,8 +383,10 @@ class Game:
             self.__tmp_start_time = time.time()
             print("\033[F\033[K" * 2, end='') 
     
-    # review previous round
-    def seeReplay(self, k_input:str)->None:       
+    def seeReplay(self, k_input:str)->None:
+        '''
+        review previous round
+        '''       
         # Show records
         if(time.time() - self.__tmp_start_time >= self.replay_speed):
             self.__tmp_start_time = time.time()
@@ -376,8 +400,10 @@ class Game:
             self.board.getRecord(1)
             self.__tmp_start_time = time.time() + self.replay_speed
                  
-    # print board on the command line
     def display(self)->None:
+        '''
+        print board on the command line
+        '''
         if(self.game_state == GameState.GAME):
             print("\033[F\033[K" * 28 + f"You are gaming in mode {self.game_mode}!\nYour Scores: {self.score}, Your Record: {Game.score_record_high[self.game_mode]}\n" + self.board.getBoard() + f"\nControl: Press 'SPACE' to pause the game, 'ESC' to quit the game...", flush=True) # "\033[F\033[K" * 19 means clear the previous linse of output to avoid jittering
         if(self.game_state == GameState.REPLAY):
@@ -388,8 +414,10 @@ class Game:
             if(self.__resume_state == GameState.REPLAY):
                 print("\033[F\033[K" * 28 + f"You are pausing in replay!\nYour Scores: {self.score}, Your Record: {Game.score_record_high[self.game_mode]}\n" + self.board.getRecord() + "\nControl: Press 'SPACE' to resume the game, 'ESC' to quit the game...", flush=True)
                 
-    # play the audio, return the play object
-    def playAudio(self, wave_obj:str, is_wait: bool = False)->simpleaudio.PlayObject:    
+    def playAudio(self, wave_obj:str, is_wait: bool = False)->simpleaudio.PlayObject:
+        '''
+        play the audio based on the input wave object, return the play object, and if is_wait, block until the audio finish
+        '''   
         # read and play the audio from file path
         try:
             play_obj = wave_obj.play()

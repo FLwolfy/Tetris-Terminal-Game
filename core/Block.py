@@ -18,52 +18,61 @@ class BaseBlock:
         self.is_special = False
         
     @property
-    # The four directional shape
     def shapes(self)->list[list[list[int]]]:
+        '''
+        The four directional shape
+        '''
         return \
             [self.base_shape,
-             [row for row in list(zip(*self.base_shape))[::-1]], # zip(*list) means the transpose of the list
+             [list(row) for row in list(zip(*self.base_shape))[::-1]], # zip(*list) means the transpose of the list
              [row[::-1] for row in self.base_shape[::-1]], 
-             [row[::-1] for row in zip(*self.base_shape)]]
+             [list(row[::-1]) for row in zip(*self.base_shape)]]
 
-    # rotate the current block counterclockwise by 90 degree
     def rotateLeft(self)->None:
-        # your code here
+        '''
+        rotate the current block counterclockwise by 90 degree
+        '''
         if(self.current_direction == 3):
             self.current_direction = 0
         else:
             self.current_direction += 1
         return
     
-    # rotate the current block clockwise by 90 degree
     def rotateRight(self)->None:
-        # your code here
+        '''
+        rotate the current block clockwise by 90 degree
+        '''
         if(self.current_direction == 0):
             self.current_direction = 3
         else:
             self.current_direction -= 1
         return
     
-    # move the current block downward by one
     def moveDown(self)->None:
-        # your code here
+        '''
+        move the current block downward by one
+        '''
         self.y += 1
         return
     
-    # move the current block rightward by one
     def moveRight(self)->None:
-        # your code here
+        '''
+        move the current block rightward by one
+        '''
         self.x += 1
         return
     
-    # move the current block leftward by one 
     def moveLeft(self)->None:
-        # your code here
+        '''
+        move the current block leftward by one 
+        '''
         self.x -= 1
         return
     
-    # return current shape of the block
     def getShape(self)->list[list[int]]:
+        '''
+        return current shape of the block
+        '''
         return self.shapes[self.current_direction]
 
 class IBlock(BaseBlock):

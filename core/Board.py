@@ -132,10 +132,15 @@ class Board:
         
     @property
     def width(self):
+        '''
+        the width of the playing board (without borders)
+        '''
         return self.__width
     
-    # stretch the wall
     def stretch(self, target_width: int)->None:
+        '''
+        stretch the right-side wall to input target width
+        '''
         # adjust board
         if(self.__width == target_width or target_width < 6):
             return 
@@ -171,51 +176,65 @@ class Board:
         # set value
         self.__width = target_width
         
-    # generate drawings on board
     def generateDrawings(self)->None:
+        '''
+        generate drawings on board
+        '''
         # generate random drawings
         index = random.randint(0,len(self.__drawings_shapes) - 1)
         self.__drawings_board = self.__drawings_shapes[index]
  
-    # move the block downward by 1 positon if the move is valid. return whether the move is successful
     def tryMoveDown(self)->bool:
+        '''
+        move the block downward by 1 positon if the move is valid. return whether the move is successful
+        '''
         if (self.isBlockValid(self.__cur_block.x, self.__cur_block.y + 1)):
             self.__cur_block.moveDown()
             return True
         return False
     
-    # move the block left by 1 positon if the move is valid. return whether the move is successful
     def tryMoveLeft(self)->bool:
+        '''
+        move the block left by 1 positon if the move is valid. return whether the move is successful
+        '''
         if (self.isBlockValid(self.__cur_block.x - 1, self.__cur_block.y)):
             self.__cur_block.moveLeft()
             return True
         return False
     
-    # move the block right by 1 positon if the move is valid. return whether the move is successful
     def tryMoveRight(self)->bool:
+        '''
+        move the block right by 1 positon if the move is valid. return whether the move is successful
+        '''
         if (self.isBlockValid(self.__cur_block.x + 1, self.__cur_block.y)):
             self.__cur_block.moveRight()
             return True
         return False
     
-    # rotate the block counterclockwise by 90 degree if the rotate is valid. return whether the move is successful
     def tryRotateLeft(self)->bool:
+        '''
+        rotate the block counterclockwise by 90 degree if the rotate is valid. return whether the move is successful
+        '''
         self.__cur_block.rotateLeft()
         if(not self.isBlockValid(self.__cur_block.x, self.__cur_block.y)):
             self.__cur_block.rotateRight()
             return False
         return True
     
-    # rotate the block clockwise by 90 degree if the rotate is valid. return whether the move is successful
     def tryRotateRight(self)->bool:
+        '''
+        rotate the block clockwise by 90 degree if the rotate is valid. return whether the move is successful
+        '''
         self.__cur_block.rotateRight()
         if(not self.isBlockValid(self.__cur_block.x, self.__cur_block.y)):
             self.__cur_block.rotateLeft()
             return False
         return True
     
-    # write current shape to the board permanently
     def dump(self)->None:
+        '''
+        write current block shape to the board permanently
+        '''
         for i in range(len(self.__cur_block.getShape())):
             for j in range(len(self.__cur_block.getShape()[0])):
                 if (self.__cur_block.y + i >= 0 and self.__cur_block.y + i < self.__height and self.__cur_block.x + j < self.__width and self.__cur_block.x + j >= 0): # within the board
@@ -225,8 +244,10 @@ class Board:
                         else:
                             self.__board[self.__cur_block.y + 8 + i][self.__cur_block.x + 1 + j] = 1 # '1' for normal block
 
-    # put a new block on the top of the board
     def putNewBlock(self)->None:
+        '''
+        put a new block on the top of the board
+        '''
         self.__cur_block = self.__next_block
         self.__cur_block.x = (self.__width // 2 + 1) - len(self.__cur_block.getShape())
         self.__cur_block.y = -len(self.__cur_block.getShape())
@@ -254,8 +275,10 @@ class Board:
         # record replay step                 
         self.recordStep()
     
-    # check if current block is valid
     def isBlockValid(self, x:int, y:int)->bool:
+        '''
+        check if current block is valid
+        '''
         for i in range(len(self.__cur_block.getShape())):
             for j in range(len(self.__cur_block.getShape()[0])):
                 if(self.__cur_block.getShape()[i][j] == 1):
@@ -268,8 +291,10 @@ class Board:
                         return False                         
         return True
                  
-    # color the detected units, return the number of blocks colored
     def colorDetected(self)->int:
+        '''
+        color the detected units need to be eliminated, return the number of blocks colored
+        '''
         num_of_blocks_detected = 0
         full_rows, special_cols = self.detectFullRowsNSpecialCols()
         
@@ -326,8 +351,10 @@ class Board:
         
         return num_of_blocks_detected
     
-    # remove the detected units that have been colored
     def removeDetected(self)->None:
+        '''
+        remove the detected units that have been colored
+        '''
         has_removed = False
         
         # remove full rows
@@ -352,12 +379,16 @@ class Board:
         if (has_removed):
             self.recordStep()
     
-    # record the current step for replay
     def recordStep(self)->None:
+        '''
+        record the current step for replay
+        '''
         self.__records.append(self.getRawBoard())
     
-    # detect if there are full rows and special cols, return the tuple of full rows and special cols  
     def detectFullRowsNSpecialCols(self)->tuple[set,set]:
+        '''
+        detect if there are full rows and special cols, return the tuple of full rows and special cols  
+        '''
         full_rows = set()
         special_cols = set()
         current_cols = set()
@@ -383,8 +414,10 @@ class Board:
         # return the tuple of full rows and special cols
         return (full_rows, special_cols)
             
-    # detect if the drawing has been matched, return the lefttop position if matched, elss return None
     def detectDrawings(self)->tuple[int,int]:
+        '''
+        detect if the drawing has been matched, return the lefttop position (row, col) if matched, else return None
+        '''
         for row in range(self.__height - 3):
             for col in range(self.__width - 3):
                 is_matched = True
@@ -398,8 +431,10 @@ class Board:
                     return (row, col)
         return None
     
-    # detect loss, if loss return True, else False
     def detectLoss(self)->bool:
+        '''
+        detect loss, if loss return True, else False
+        '''
         top_row = self.__board[8]
         is_loss = False
         for i in range(len(top_row)):
@@ -410,8 +445,14 @@ class Board:
             self.recordStep()
         return is_loss
     
-    # the distance of the current block to the wall, 0:UP, 1:LEFT, 2:RIGHT, 3:DOWN
     def distanceToWall(self, direction:int)->int:
+        '''
+        the distance of the current block to the wall based on the input direction:
+        - 0: UP
+        - 1: LEFT
+        - 2: RIGHT
+        - 3: DOWN
+        '''
         # up
         if(direction == 0):
             return self.__cur_block.y + 1
@@ -440,8 +481,10 @@ class Board:
         
         return None
     
-    # get the 2Dlist[int] board for raw output
     def getRawBoard(self, is_paused: bool = False)->list[list[int]]:
+        '''
+        get the 2Dlist[int] board for raw output
+        '''
         # deep copy of current board
         tmp = [row[:] for row in self.__board]
         
@@ -489,8 +532,10 @@ class Board:
                             tmp[start_index_row + i][start_index_col + j] = 1 # normal block
         return tmp
     
-    # get the output of the board
     def getBoard(self, is_paused: bool = False, input: list[list[int]] = None)->str:
+        '''
+        get the output of the board
+        '''
         # get input
         if(input == None):
             tmp = self.getRawBoard(is_paused)
@@ -529,15 +574,19 @@ class Board:
            
         return tmp_string
     
-    # get the record based on the given step
     def getRecord(self, step: int = 0)->str:
+        '''
+        get the record based on the given step
+        '''
         self.__current_record_index = min(max(1, self.__current_record_index + step), len(self.__records) - 1)
         tmp_string = self.getBoard(input=self.__records[self.__current_record_index])
            
         return tmp_string
     
-    # get the data of the current board
     def getData(self)->dict:
+        '''
+        get the data of the current board
+        '''
         return {
             "height": self.__height,
             "width": self.__width,
@@ -549,8 +598,10 @@ class Board:
             "next_block_type" : "#" + str(type(self.__next_block)).split('Block.')[1][0] if(self.__next_block.is_special) else str(type(self.__next_block)).split('Block.')[1][0],
         } # '#' notation for special block
     
-    # load the data from the given parameters
     def loadData(self, height: int, width: int, board: list[list[int]], stretch_board:list[list[int]], drawing_board:list[list[int]], records: list[list[list[int]]], cur_block_type: str, next_block_type: str)->None:
+        '''
+        load the data from the given parameters
+        '''
         # read height and width
         self.__height = height
         self.__width = width

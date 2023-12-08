@@ -48,6 +48,8 @@ class Appearance:
     DRAWING_COLOR = "\033[38;5;208m" # orange
     EXPLODE_COLOR = "\033[38;5;206m" # pink
     
-    # generate special color change as time
     def SPECIAL_COLOR()->str:
+        '''
+        generate special color change as time
+        '''
         return f"\033[38;2;{abs(256 - (int(time.time() * 100) % 512))};{abs(256 - ((int(time.time() * 100) + 128) % 512))};0m"
