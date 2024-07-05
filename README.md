@@ -64,7 +64,6 @@ Make sure you have:
 
 #### 2. Package:
 Make sure the following dependent libraries are installed:
-- `KBHit`
 - `simpleaudio`
 
 ## Notes
